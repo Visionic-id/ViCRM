@@ -37,9 +37,14 @@ AppAsset::register($this);
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
+            ['label' => 'Home', 'url' => ['/site/index'], 'visible'=>!Yii::$app->user->isGuest],
+            ['label' => 'Email', 'url' => ['/email'], 'visible'=>!Yii::$app->user->isGuest],
+            ['label' => 'Lead', 'url' => ['/lead'], 'visible'=>!Yii::$app->user->isGuest],
+            ['label' => 'Opportunity', 'url' => ['/opportunity'], 'visible'=>!Yii::$app->user->isGuest],
+            ['label' => 'Customer', 'url' => ['/customer'], 'visible'=>!Yii::$app->user->isGuest],
+            ['label' => 'Order', 'url' => ['/order'], 'visible'=>!Yii::$app->user->isGuest],
+            ['label' => 'Form', 'url' => ['/form'], 'visible'=>!Yii::$app->user->isGuest],
+            ['label' => 'URL', 'url' => ['/url'], 'visible'=>!Yii::$app->user->isGuest],
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/site/login']]
             ) : (
@@ -70,8 +75,8 @@ AppAsset::register($this);
 
 <footer class="footer mt-auto py-3 text-muted">
     <div class="container">
-        <p class="float-left">&copy; My Company <?= date('Y') ?></p>
-        <p class="float-right"><?= Yii::powered() ?></p>
+        <p class="float-left">&copy; Visionic <?= date('Y') ?></p>
+        <p class="float-right"></p>
     </div>
 </footer>
 
