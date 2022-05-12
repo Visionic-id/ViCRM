@@ -3,10 +3,13 @@
 namespace app\modules\url\controllers;
 
 use app\modules\url\models\UrlShortener;
+use app\modules\url\models\UrlShortenerLog;
 use app\modules\url\models\UrlShortenerSearch;
+use WhichBrowser\Parser;
+use Yii;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * DefaultController implements the CRUD actions for UrlShortener model.
@@ -58,6 +61,22 @@ class DefaultController extends Controller
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
+    }
+
+    /**
+     * Finds the UrlShortener model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param int $id ID
+     * @return UrlShortener the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = UrlShortener::findOne(['id' => $id])) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('The requested page does not exist.');
     }
 
     /**
@@ -116,19 +135,28 @@ class DefaultController extends Controller
         return $this->redirect(['index']);
     }
 
-    /**
-     * Finds the UrlShortener model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return UrlShortener the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
+    public function actionGet($short_url)
     {
-        if (($model = UrlShortener::findOne(['id' => $id])) !== null) {
-            return $model;
-        }
+        $url_short = UrlShortener::findOne(['short_url' => $short_url]);
+        if (empty($url_short))
+            throw new NotFoundHttpException('The requested page does not exist.');
 
-        throw new NotFoundHttpException('The requested page does not exist.');
+        $user_agent = new Parser(Yii::$app->request->getUserAgent());
+        $user_agent = $user_agent->toArray();
+
+        $url_short_log = new UrlShortenerLog();
+        $url_short_log->user_agent = Yii::$app->request->getUserAgent();
+        $url_short_log->ip = Yii::$app->request->getUserIP();
+        $url_short_log->browser = $user_agent['browser']['name'];
+        $url_short_log->os = $user_agent['os']['name'];
+        $url_short_log->device = $user_agent['device']['type'];
+        $url_short_log->engine = $user_agent['engine']['name'];
+        $url_short_log->url_shortener_id = $url_short->id;
+
+        if (!$url_short_log->save())
+            throw new NotFoundHttpException('The requested page does not exist.');
+
+
+        return $this->redirect($url_short->url);
     }
 }

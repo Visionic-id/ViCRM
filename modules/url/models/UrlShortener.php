@@ -2,7 +2,7 @@
 
 namespace app\modules\url\models;
 
-use Yii;
+use app\components\helpers\NanoIdHelper;
 
 /**
  * This is the model class for table "url_shortener".
@@ -31,10 +31,30 @@ class UrlShortener extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['url', 'short_url'], 'required'],
+            [['url'], 'required'],
             [['created_at', 'updated_at'], 'safe'],
-            [['url', 'short_url'], 'string', 'max' => 255],
+            [['short_url'], 'string', 'max' => 255],
+            [['short_url'], 'unique'],
+            [['url'], 'url'],
         ];
+    }
+
+    public function beforeSave($insert)
+    {
+        if ($this->isNewRecord) {
+            $this->created_at = date('Y-m-d H:i:s');
+            $this->generateUrlShort();
+        }
+        $this->updated_at = date('Y-m-d H:i:s');
+
+        return parent::beforeSave($insert);
+    }
+
+    protected function generateUrlShort(){
+        $this->short_url = NanoIdHelper::generate();
+        if(self::findOne(['short_url' => $this->short_url])){
+            $this->generateUrlShort();
+        }
     }
 
     /**

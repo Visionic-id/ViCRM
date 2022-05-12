@@ -12,9 +12,11 @@ use Yii;
  * @property string $user_agent
  * @property string $ip
  * @property string $browser
- * @property string $platform
  * @property string $created_at
  * @property string $updated_at
+ * @property string|null $os
+ * @property string|null $device
+ * @property string|null $engine
  *
  * @property UrlShortener $urlShortener
  */
@@ -34,10 +36,11 @@ class UrlShortenerLog extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['url_shortener_id', 'user_agent', 'ip', 'browser', 'platform'], 'required'],
+            [['url_shortener_id', 'user_agent', 'ip', 'browser'], 'required'],
             [['url_shortener_id'], 'integer'],
             [['created_at', 'updated_at'], 'safe'],
-            [['user_agent', 'ip', 'browser', 'platform'], 'string', 'max' => 255],
+            [['user_agent', 'ip', 'browser'], 'string', 'max' => 255],
+            [['os', 'device', 'engine'], 'string', 'max' => 45],
             [['url_shortener_id'], 'exist', 'skipOnError' => true, 'targetClass' => UrlShortener::className(), 'targetAttribute' => ['url_shortener_id' => 'id']],
         ];
     }
@@ -53,9 +56,11 @@ class UrlShortenerLog extends \yii\db\ActiveRecord
             'user_agent' => 'User Agent',
             'ip' => 'Ip',
             'browser' => 'Browser',
-            'platform' => 'Platform',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
+            'os' => 'Os',
+            'device' => 'Device',
+            'engine' => 'Engine',
         ];
     }
 
