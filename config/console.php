@@ -38,6 +38,7 @@ $config = [
             'migrationNamespaces' => [
                 'app\migrations',
                 'app\modules\email\migrations',
+                'app\modules\url\migrations',
             ],
         ],
     ],

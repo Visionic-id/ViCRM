@@ -56,6 +56,9 @@ $config = [
         'email' => [
             'class' => 'app\modules\email\Module',
         ],
+        'url' => [
+            'class' => 'app\modules\url\Module',
+        ],
     ],
 ];
 
