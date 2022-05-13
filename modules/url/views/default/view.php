@@ -1,12 +1,15 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
 /* @var $model app\modules\url\models\UrlShortener */
+/* @var $dataProviderLog yii\data\ActiveDataProvider */
+/* @var $searchModelLog app\modules\url\models\UrlShortenerLogSearch */
 
-$this->title = $model->id;
+$this->title = $model->short_url;
 $this->params['breadcrumbs'][] = ['label' => 'Url Shorteners', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
@@ -16,7 +19,9 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('ToUrl', ['default/get', 'short_url' => $model->short_url], ['class' => 'btn btn-primary']) ?>
+        <?= Html::button('Copy Short URL',
+            ['class' => 'btn btn-primary', 'onclick' => 'navigator.clipboard.writeText("' . Url::to(['default/get', 'short_url' => $model->short_url], true) . '");alert("URL Telah di Copy");']
+        ) ?>
         <?= Html::a('Update', ['default/update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Delete', ['default/delete', 'id' => $model->id], [
             'class' => 'btn btn-danger',
@@ -27,15 +32,20 @@ $this->params['breadcrumbs'][] = $this->title;
         ]) ?>
     </p>
 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'url:url',
-            'short_url:url',
-            'created_at',
-            'updated_at',
-        ],
+    <div class="card card-body mb-3">
+        <h4>Detail URL</h4>
+        <?= DetailView::widget([
+            'model' => $model,
+            'attributes' => [
+                'url:url',
+                'short_url',
+            ],
+        ]) ?>
+    </div>
+
+    <?= $this->render('_log', [
+        'dataProviderLog' => $dataProviderLog,
+        'searchModelLog' => $searchModelLog,
     ]) ?>
 
 </div>

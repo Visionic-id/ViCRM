@@ -4,6 +4,7 @@ namespace app\modules\url\controllers;
 
 use app\modules\url\models\UrlShortener;
 use app\modules\url\models\UrlShortenerLog;
+use app\modules\url\models\UrlShortenerLogSearch;
 use app\modules\url\models\UrlShortenerSearch;
 use WhichBrowser\Parser;
 use Yii;
@@ -58,8 +59,14 @@ class DefaultController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+
+        $searchModelLog = new UrlShortenerLogSearch();
+        $dataProviderLog = $searchModelLog->search($this->request->queryParams);
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
+            'searchModelLog' => $searchModelLog,
+            'dataProviderLog' => $dataProviderLog,
         ]);
     }
 
