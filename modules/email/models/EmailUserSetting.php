@@ -4,6 +4,7 @@ namespace app\modules\email\models;
 
 use app\models\User;
 use Yii;
+use yii\web\UnauthorizedHttpException;
 
 /**
  * This is the model class for table "email_user_setting".
@@ -17,6 +18,21 @@ use Yii;
  */
 class EmailUserSetting extends \yii\db\ActiveRecord
 {
+    const SET_FROM_EMAIL_ADDRESS = 'from_email_address';
+    const SET_FROM_NAMA_PENGIRIM = 'nama_pengirim';
+
+    // INCOMING
+    const SET_IMAP_HOST = 'imap_host';
+    const SET_IMAP_EMAIL_ADDRESS = 'imap_email_address';
+    const SET_IMAP_EMAIL_PASSWORD = 'imap_email_password';
+    const SET_IMAP_PORT = 'imap_port';
+
+    // SMPTP ( Out Going )
+    const SET_SMTP_HOST = 'smtp_host';
+    const SET_SMTP_EMAIL_ADDRESS = 'smtp_email_address';
+    const SET_SMTP_EMAIL_PASSWORD = 'smtp_email_password';
+    const SET_SMTP_PORT = 'smtp_port';
+
     /**
      * {@inheritdoc}
      */
@@ -61,5 +77,65 @@ class EmailUserSetting extends \yii\db\ActiveRecord
     public function getUser()
     {
         return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+
+    public static function getSettingUser($name, $user = null){
+        if($user == null){
+            $user = Yii::$app->user->identity;
+        }
+
+        if(!$user)
+            throw new UnauthorizedHttpException('Anda tidak memilik hak akses halaman ini. Silahkan login dahulu,');
+
+        $setting = self::findOne([
+            'user_id'=>$user->id,
+            'name'=>$name
+        ]);
+
+        return $setting ? $setting->value : null;
+    }
+
+    public static function setSettingUser($name, $value = null, $user = null){
+        if($user == null){
+            $user = Yii::$app->user->identity;
+        }
+
+        if(!$user)
+            throw new UnauthorizedHttpException('Anda tidak memilik hak akses halaman ini. Silahkan login dahulu,');
+
+        $setting = self::findOne([
+            'user_id'=>$user->id,
+            'name'=>$name
+        ]);
+
+        if($setting) {
+            $setting->value = $value;
+            $setting->save();
+        }
+    }
+
+    public static function getAndSetSettingUser($name, $value = null, $user = null){
+        if($user == null){
+            $user = Yii::$app->user->identity;
+        }
+
+        if(!$user)
+            throw new UnauthorizedHttpException('Anda tidak memilik hak akses halaman ini. Silahkan login dahulu,');
+
+        $setting = self::findOne([
+            'user_id'=>$user->id,
+            'name'=>$name
+        ]);
+
+        if(!$setting){
+            $setting = new EmailUserSetting();
+            $setting->user_id= $user->id;
+            $setting->name = $name;
+            $setting->value = $value;
+            $setting->save();
+        }
+
+        return $setting->value;
     }
 }

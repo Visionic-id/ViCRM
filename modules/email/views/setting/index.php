@@ -7,6 +7,10 @@ $this->title = "Setting Email";
 
 $this->params['breadcrumbs'][] = ['label' => 'Email', 'url' => ['/email']];
 $this->params['breadcrumbs'][] = $this->title;
+
+if(!isset($tab)){
+    $tab = 'general';
+}
 ?>
 
 
@@ -33,68 +37,20 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="row">
     <div class="col-md-3">
         <div class="list-group">
-            <a href="<?= Url::current(['tab' => 'general']) ?>" class="list-group-item list-group-item-action active"
+            <a href="<?= Url::current(['tab' => 'general']) ?>" class="list-group-item list-group-item-action<?= $tab == 'general' ? ' active' : ''?>"
                aria-current="true">
                 General Setting
             </a>
-            <a href="<?= Url::current(['tab' => 'folder']) ?>" class="list-group-item list-group-item-action">Folder</a>
-            <a href="<?= Url::current(['tab' => 'email-address']) ?>" class="list-group-item list-group-item-action">Email
+            <a href="<?= Url::current(['tab' => 'folder']) ?>" class="list-group-item list-group-item-action<?= $tab == 'folder' ? ' active' : ''?>">Folder</a>
+            <a href="<?= Url::current(['tab' => 'email-address']) ?>" class="list-group-item list-group-item-action<?= $tab == 'email-address' ? ' active' : ''?>">Email
                 Address</a>
-            <a href="<?= Url::current(['tab' => 'reply-forward']) ?>" class="list-group-item list-group-item-action">Reply
+            <a href="<?= Url::current(['tab' => 'reply-forward']) ?>" class="list-group-item list-group-item-action<?= $tab == 'reply-forward' ? ' active' : ''?>">Reply
                 & Forward</a>
         </div>
     </div>
     <div class="col-md-9">
-        <?= Html::beginForm() ?>
-        <div class="card mb-4">
-            <div class="card-header">Setting Imap (Incoming)</div>
-            <div class="card-body">
-                <div class="form-group">
-                    <label for="setting-1">Email address</label>
-                    <input type="email" class="form-control" id="setting-1" aria-describedby="setting-1-help">
-                    <small id="setting-1-help" class="form-text text-muted">Alamat Email Pengirim</small>
-                </div>
-                <div class="form-group">
-                    <label for="setting-1">Nama Pengirim</label>
-                    <input type="text" class="form-control" id="setting-1" aria-describedby="setting-1-help">
-                    <small id="setting-1-help" class="form-text text-muted">Nama Pengirim yang akan muncul pada metadata
-                        email.</small>
-                </div>
-            </div>
-        </div>
-        <div class="card mb-4">
-            <div class="card-header">Setting SMTP (Outgoing)</div>
-            <div class="card-body">
+        <?= $this->render('tab/'.$tab, [
 
-                <div class="form-group">
-                    <label for="setting-1">URL Host</label>
-                    <input type="text" class="form-control" id="setting-1" aria-describedby="setting-1-help">
-                    <small id="setting-1-help" class="form-text text-muted">Sebagai contoh : <code>mail.visionic.id</code></small>
-                </div>
-                <div class="form-group">
-                    <label for="setting-1">Email address (username)</label>
-                    <input type="email" class="form-control" id="setting-1" aria-describedby="setting-1-help">
-                </div>
-                <div class="form-group">
-                    <label for="setting-1">Password (credential email)</label>
-                    <input type="password" class="form-control" id="setting-1" aria-describedby="setting-1-help">
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label for="setting-1">Port : </label>
-                            <input type="email" class="form-control" id="setting-1" aria-describedby="setting-1-help">
-                            <small id="setting-1-help" class="form-text text-muted">Default port :
-                                <code>993</code></small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-success">
-            Simpan
-        </button>
-        <?= Html::endForm(); ?>
+        ]) ?>
     </div>
 </div>
