@@ -24,7 +24,7 @@ if(!isset($tab)){
                 </div>
             </div>
             <div class="align-middle">
-                <a href="" class="btn btn-primary">
+                <a href="<?= Url::to(['/site/profile']) ?>" class="btn btn-primary">
                     <i class="fa fa-edit"></i>
                     Edit Profile
                 </a>
@@ -42,8 +42,6 @@ if(!isset($tab)){
                 General Setting
             </a>
             <a href="<?= Url::current(['tab' => 'folder']) ?>" class="list-group-item list-group-item-action<?= $tab == 'folder' ? ' active' : ''?>">Folder</a>
-            <a href="<?= Url::current(['tab' => 'email-address']) ?>" class="list-group-item list-group-item-action<?= $tab == 'email-address' ? ' active' : ''?>">Email
-                Address</a>
             <a href="<?= Url::current(['tab' => 'reply-forward']) ?>" class="list-group-item list-group-item-action<?= $tab == 'reply-forward' ? ' active' : ''?>">Reply
                 & Forward</a>
         </div>

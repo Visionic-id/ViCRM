@@ -1,12 +1,20 @@
 <?php
 namespace app\modules\email\helpers;
 
+use app\modules\email\models\EmailUserFolder;
+use app\modules\email\models\EmailUserSetting;
 use kekaadrenalin\imap\ImapConnection;
 use kekaadrenalin\imap\Mailbox;
 use Yii;
 use yii\base\BaseObject;
 
 /**
+ * contoh koneksi
+ * $email = new Email();
+ * $email->connect()->initMailbox();
+ * $email->reloadEmail(); // untuk reload data email
+ * $email->reloadFodler(); // untuk reload data folder
+ *
  * @property $con ImapConnection
  * @property $mailbox Mailbox
  */
@@ -15,11 +23,17 @@ class Email extends BaseObject
     public $con = null;
     public $mailbox = null;
 
-    public function connect(){
+
+    public function connect($folder = ''){
+        $host = EmailUserSetting::getSettingUser(EmailUserSetting::SET_IMAP_HOST);
+        $port = EmailUserSetting::getSettingUser(EmailUserSetting::SET_IMAP_PORT);
+        $email = EmailUserSetting::getSettingUser(EmailUserSetting::SET_IMAP_EMAIL_ADDRESS);
+        $password = EmailUserSetting::getSettingUser(EmailUserSetting::SET_IMAP_EMAIL_PASSWORD);
+
         $this->con = new ImapConnection();
-        $this->con->imapPath = '{mail.visionic.id:993/imap/ssl}INBOX';
-        $this->con->imapLogin = 'attok@visionic.id';
-        $this->con->imapPassword = '7=5ynN=kEkDC';
+        $this->con->imapPath = '{'.$host.':'.$port.'/imap/ssl}INBOX'.$folder;
+        $this->con->imapLogin = $email;
+        $this->con->imapPassword = $password;
         $this->con->serverEncoding = 'utf-8'; // utf-8 default.
         $this->con->attachmentsDir = Yii::getAlias('@app/runtime/imap/');
         $this->con->decodeMimeStr = true;
@@ -64,6 +78,18 @@ class Email extends BaseObject
 
     public function reloadFolder(){
         $folders = $this->mailbox->getListingFolders();
+//        print_r($folders);exit();
+        foreach($folders as $folder){
+            $model = EmailUserFolder::find()
+                ->where(['user_id'=>Yii::$app->user->id, 'name'=>$folder])
+                ->one();
+            if(!$model){
+                $model = new EmailUserFolder();
+                $model->user_id = Yii::$app->user->id;
+                $model->name = $folder;
+                $model->save();
+            }
+        }
     }
 
 }

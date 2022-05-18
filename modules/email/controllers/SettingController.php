@@ -2,6 +2,7 @@
 
 namespace app\modules\email\controllers;
 
+use app\modules\email\helpers\Email;
 use app\modules\email\models\EmailUserSetting;
 use Yii;
 use yii\web\Controller;
@@ -13,7 +14,6 @@ class SettingController extends Controller
         $tab_list = [
             'general',
             'folder',
-            'email-address',
             'reply-forward',
         ];
         $tab = $this->request->get('tab', 'general');
@@ -35,6 +35,19 @@ class SettingController extends Controller
 
                     return $this->refresh();
                 }
+            }
+        }
+
+        if($tab == 'folder'){
+            $action = $this->request->post('action');
+            if($action == 'reload') {
+                $email = new Email();
+                $email->connect()->initMailbox();
+                $email->reloadFolder();
+
+                Yii::$app->session->setFlash('success', 'Berhasil memuat ulang folder');
+
+                return $this->refresh();
             }
         }
 

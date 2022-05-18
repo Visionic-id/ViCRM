@@ -1,7 +1,9 @@
 <?php
 
+use app\modules\email\models\EmailUserFolder;
 use yii\helpers\Url;
 
+$folders = EmailUserFolder::find()->where(['user_id'=>Yii::$app->user->id])->all();
 ?>
 <div class="mb-4 mt-2 d-flex justify-content-between">
     <a href="<?= Url::to(['/email/compose']) ?>" class="btn btn-success">
@@ -19,9 +21,10 @@ use yii\helpers\Url;
                     aria-expanded="false">Pilih Folder (Inbox)
             </button>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="<?= Url::current(['folder'=>'Inbox']) ?>">Inbox</a>
-                <a class="dropdown-item" href="<?= Url::current(['folder'=>'Spam']) ?>">Spam</a>
-                <a class="dropdown-item" href="<?= Url::current(['folder'=>'Sent']) ?>">Sent</a>
+
+                <?php foreach($folders as $n=>$folder): ?>
+                <a class="dropdown-item" href="<?= Url::current(['folder'=>$folder->name]) ?>"><?= $folder->name ?></a>
+                <?php endforeach; ?>
             </div>
 
             <a href="<?= Url::to(['/email/reload']) ?>" class="btn btn-info">
