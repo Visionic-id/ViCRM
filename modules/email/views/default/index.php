@@ -3,8 +3,12 @@
 use app\modules\email\models\EmailMailbox;
 use app\modules\email\models\EmailUserFolder;
 use yii\bootstrap4\LinkPager;
+use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use yii\helpers\Url;
+
+/* @var $dataProvider ActiveDataProvider */
+/* @var $q string */
 
 $this->title = 'Email - Mailbox';
 $this->params['breadcrumbs'][] = $this->title;
