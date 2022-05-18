@@ -1,9 +1,15 @@
 <?php
 
+use app\modules\email\models\EmailMailbox;
 use app\modules\email\models\EmailUserFolder;
+use yii\bootstrap4\LinkPager;
+use yii\helpers\Html;
 use yii\helpers\Url;
 
-$folders = EmailUserFolder::find()->where(['user_id'=>Yii::$app->user->id])->all();
+$this->title = 'Email - Mailbox';
+$this->params['breadcrumbs'][] = $this->title;
+
+$folders = EmailUserFolder::find()->where(['user_id' => Yii::$app->user->id])->all();
 ?>
 <div class="mb-4 mt-2 d-flex justify-content-between">
     <a href="<?= Url::to(['/email/compose']) ?>" class="btn btn-success">
@@ -22,19 +28,22 @@ $folders = EmailUserFolder::find()->where(['user_id'=>Yii::$app->user->id])->all
             </button>
             <div class="dropdown-menu">
 
-                <?php foreach($folders as $n=>$folder): ?>
-                <a class="dropdown-item" href="<?= Url::current(['folder'=>$folder->name]) ?>"><?= $folder->name ?></a>
+                <?php foreach ($folders as $n => $folder): ?>
+                    <a class="dropdown-item"
+                       href="<?= Url::current(['folder' => $folder->name]) ?>"><?= $folder->name ?></a>
                 <?php endforeach; ?>
             </div>
 
-            <a href="<?= Url::to(['/email/reload']) ?>" class="btn btn-info">
+            <?= Html::beginForm(Url::current(), 'post', ['class' => 'form-inline d-inline-block']) ?>
+            <button type="submit" name="action" value="reload" class="btn btn-info">
                 <i class="fa fa-refresh"></i> Reload Email
-            </a>
+            </button>
+            <?= Html::endForm() ?>
         </div>
 
         <div class="">
-            <form class="d-flex">
-                <input type="search" class="form-control mr-2" placeholder="Pencarian "/>
+            <form method="get" action="<?= Url::current(['q' => false]) ?>" class="d-flex">
+                <input type="search" name="q" value="<?= $q ?>" class="form-control mr-2" placeholder="Pencarian "/>
                 <button class="btn btn-primary d-inline-flex align-content-center justify-content-center align-middle">
                     <i class="fa fa-search mr-2 align-self-center"></i>
                     <span>Cari</span>
@@ -53,128 +62,55 @@ $folders = EmailUserFolder::find()->where(['user_id'=>Yii::$app->user->id])->all
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td class="align-middle">
-                <div class="text-muted">
-                Senin,
-                12 Mar 2022<br/>
-                12:00 AM
-                </div>
-            </td>
-            <td class="align-middle">
-                <a href="" class="font-weight-bold text-primary">
-                    Penawaran Pengembangan Sistem Informasi Pengelolaan Jadwal Sertifikasi dari Visionic
-                </a>
-            </td>
-            <td class="align-middle">
-                <a href="">
-                    Surya Eko Indrawan
-                </a>
-                <div>surya@visionic.co.id</div>
-            </td>
-            <td class="align-middle">
-                <a href="" class="btn btn-primary">
-                    <i class="fa fa-mail-reply"></i> Reply
-                </a>
+        <?php foreach ($dataProvider->getModels() as $model) :
+            /* @var $model EmailMailbox */
+            ?>
+            <tr>
+                <td class="align-middle">
+                    <div class="text-muted">
+                        <?= Yii::$app->formatter->asDatetime($model->date) ?>
+                    </div>
+                </td>
+                <td class="align-middle">
+                    <a href="<?= Url::to(['view', 'id'=>$model->id]) ?>" class="font-weight-bold text-primary">
+                        <?= $model->subject ?>
+                    </a>
+                </td>
+                <td class="align-middle">
+                    <a href="<?= Url::to(['compose', 'toAddress'=>$model->fromAddress, 'toName'=>$model->fromName]) ?>">
+                        <?= $model->fromName ?>
+                    </a>
+                    <div><?= $model->fromAddress ?></div>
+                </td>
+                <td class="align-middle">
+                    <a href="<?= Url::to(['reply', 'id'=>$model->id]) ?>" class="btn btn-primary">
+                        <i class="fa fa-mail-reply"></i> Reply
+                    </a>
 
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                        aria-expanded="false">
-                    <i class="fa fa-ellipsis"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#">
-                        <i class="fa fa-mail-forward"></i>
-                        Forward
-                    </a>
-                    <a class="dropdown-item" href="#">
-                        <i class="fa fa-eye"></i>
-                        Detail
-                    </a>
-                </div>
-            </td>
-        </tr>
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
+                            aria-expanded="false">
+                        <i class="fa fa-ellipsis"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="<?= Url::to(['forward', 'id'=>$model->id]) ?>">
+                            <i class="fa fa-mail-forward"></i>
+                            Forward
+                        </a>
+                        <a class="dropdown-item" href="<?= Url::to(['view', 'id'=>$model->id]) ?>">
+                            <i class="fa fa-eye"></i>
+                            Detail
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        <?php endforeach; ?>
 
-        <tr>
-            <td class="align-middle">
-                <div class="text-muted">
-                    Senin,
-                    12 Mar 2022<br/>
-                    12:00 AM
-                </div>
-            </td>
-            <td class="align-middle">
-                <a href="" class="font-weight-bold text-secondary">
-                    Penawaran Pengembangan Sistem Informasi Pengelolaan Jadwal Sertifikasi dari Visionic
-                </a>
-            </td>
-            <td class="align-middle">
-                <a href="">
-                    Surya Eko Indrawan
-                </a>
-                <div>surya@visionic.co.id</div>
-            </td>
-            <td class="align-middle">
-                <a href="" class="btn btn-primary">
-                    <i class="fa fa-mail-reply"></i> Reply
-                </a>
-
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                        aria-expanded="false">
-                    <i class="fa fa-ellipsis"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#">
-                        <i class="fa fa-mail-forward"></i>
-                        Forward
-                    </a>
-                    <a class="dropdown-item" href="#">
-                        <i class="fa fa-eye"></i>
-                        Detail
-                    </a>
-                </div>
-            </td>
-        </tr>
-
-        <tr>
-            <td class="align-middle">
-                <div class="text-muted">
-                    Senin,
-                    12 Mar 2022<br/>
-                    12:00 AM
-                </div>
-            </td>
-            <td class="align-middle">
-                <a href="" class="font-weight-bold text-secondary">
-                    Penawaran Pengembangan Sistem Informasi Pengelolaan Jadwal Sertifikasi dari Visionic
-                </a>
-            </td>
-            <td class="align-middle">
-                <a href="">
-                    Surya Eko Indrawan
-                </a>
-                <div>surya@visionic.co.id</div>
-            </td>
-            <td class="align-middle">
-                <a href="" class="btn btn-primary">
-                    <i class="fa fa-mail-reply"></i> Reply
-                </a>
-
-                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown"
-                        aria-expanded="false">
-                    <i class="fa fa-ellipsis"></i>
-                </button>
-                <div class="dropdown-menu">
-                    <a class="dropdown-item" href="#">
-                        <i class="fa fa-mail-forward"></i>
-                        Forward
-                    </a>
-                    <a class="dropdown-item" href="#">
-                        <i class="fa fa-eye"></i>
-                        Detail
-                    </a>
-                </div>
-            </td>
-        </tr>
         </tbody>
     </table>
+
+    <div class="mt-4">
+        <?= LinkPager::widget([
+            'pagination' => $dataProvider->getPagination()
+        ]) ?>
+    </div>
 </div>

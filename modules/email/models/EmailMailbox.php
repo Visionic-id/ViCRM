@@ -2,6 +2,7 @@
 
 namespace app\modules\email\models;
 
+use app\models\User;
 use Yii;
 
 /**
@@ -9,7 +10,7 @@ use Yii;
  *
  * @property int $id
  * @property int|null $user_id
- * @property int|null $mid
+ * @property int|null $uid
  * @property string|null $date
  * @property string|null $subject
  * @property string|null $fromName
@@ -18,6 +19,16 @@ use Yii;
  * @property string|null $textPlain
  * @property string|null $textHtml
  * @property string|null $messageId
+ * @property string|null $references
+ * @property string|null $in_reply_to
+ * @property int|null $size
+ * @property int|null $msgno
+ * @property int|null $recent
+ * @property int|null $flagged
+ * @property int|null $answered
+ * @property int|null $deleted
+ * @property int|null $seen
+ * @property int|null $draft
  * @property int|null $is_read
  * @property string|null $read_at
  * @property string|null $created_at
@@ -42,8 +53,8 @@ class EmailMailbox extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'mid', 'is_read'], 'integer'],
-            [['date', 'read_at', 'created_at', 'updated_at'], 'safe'],
+            [['user_id', 'uid', 'is_read', 'size', 'msgno', 'recent', 'flagged', 'answered', 'deleted', 'seen', 'draft'], 'integer'],
+            [['date', 'read_at', 'created_at', 'updated_at' ,'references', 'in_reply_to'], 'safe'],
             [['toString', 'textPlain', 'textHtml'], 'string'],
             [['subject', 'fromName', 'fromAddress', 'messageId'], 'string', 'max' => 250],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
@@ -58,7 +69,7 @@ class EmailMailbox extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'user_id' => 'User ID',
-            'mid' => 'Mid',
+            'uid' => 'uid',
             'date' => 'Date',
             'subject' => 'Subject',
             'fromName' => 'From Name',

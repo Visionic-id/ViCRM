@@ -1,6 +1,10 @@
 <?php
 namespace app\modules\email\helpers;
 
+use app\modules\email\models\EmailAddress;
+use app\modules\email\models\EmailMailbox;
+use app\modules\email\models\EmailMailboxAddress;
+use app\modules\email\models\EmailMailboxAttachment;
 use app\modules\email\models\EmailUserFolder;
 use app\modules\email\models\EmailUserSetting;
 use kekaadrenalin\imap\ImapConnection;
@@ -47,7 +51,6 @@ class Email extends BaseObject
 
     public function reloadEmail(){
         $mailIds = $this->mailbox->searchMailBox();
-        /* @todo Save Email */
 
         foreach($mailIds as $mailId)
         {
@@ -58,22 +61,109 @@ class Email extends BaseObject
             $mailObject = $this->mailbox->getMailParts($mail);
 
             // Array with IncomingMail objects
-            print_r($mailObject->fromName);
-            exit();
+            $model = EmailMailbox::find()->where([
+                'user_id'=>Yii::$app->user->id,
+                'uid'=>$mailObject->id
+            ])->one();
+
+            if(!$model){
+                $model = new EmailMailbox();
+                $model->user_id = Yii::$app->user->id;
+                $model->uid = $mailObject->id;
+            }
+
+            $model->date = $mailObject->date;
+            $model->subject = $mailObject->subject;
+            $model->fromName = $mailObject->fromName;
+            $model->fromAddress = $mailObject->fromAddress;
+            $model->toString = $mailObject->toString;
+            $model->textPlain = $mailObject->textPlain;
+            $model->textHtml = $mailObject->textHtml;
+            $model->messageId = $mailObject->messageId;
+
+            $model->save();
+
+            foreach($mailObject->to as $add=>$name){
+                $this->saveEmailMailboxAddress($model->id, $add, $name, EmailMailboxAddress::TYPE_TO);
+            }
+
+
+            foreach($mailObject->replyTo as $add=>$name){
+                $this->saveEmailMailboxAddress($model->id, $add, $name, EmailMailboxAddress::TYPE_REPLY_TO);
+            }
+            foreach($mailObject->cc as $add=>$name){
+                $this->saveEmailMailboxAddress($model->id, $add, $name, EmailMailboxAddress::TYPE_CC);
+            }
+//            foreach($mailObject->bcc as $add=>$name){
+//                $this->saveEmailMailboxAddress($model->id, $add, $name, EmailMailboxAddress::TYPE_CC);
+//            }
+
+
 
             // Returns mail attachements if any or else empty array
-//            $attachments = $mailObject->getAttachments();
-//            foreach($attachments as $attachment){
-//                echo ' Attachment:' . $attachment->name . PHP_EOL;
-//
-//                // Delete attachment file
-//                unlink($attachment->filePath);
-//            }
+            $attachments = $mailObject->getAttachments();
+            foreach($attachments as $attachment){
+                $att = EmailMailboxAttachment::findOne([
+                    'email_mailbox_id'=>$model->id,
+                    'uid'=>$attachment->id
+                ]);
+                if(!$att){
+                    $att = new EmailMailboxAttachment();
+                    $att->email_mailbox_id = $model->id;
+                    $att->uid = $attachment->id;
+                    $att->name = $attachment->name;
+                    $att->filePath = $attachment->filePath;
+                    $att->save();
+                }
+            }
         }
+
+
+        $mailInfos = $this->mailbox->getMailsInfo($mailIds);
+        foreach($mailInfos as $info){
+            $model = EmailMailbox::findOne(['user_id'=>Yii::$app->user->id, 'uid'=>$info->uid]);
+            if(!$model) continue;
+
+            $model->references = isset($info->references) ? $info->references : null;
+            $model->in_reply_to = isset($info->in_reply_to) ? $info->in_reply_to : null;
+            $model->size = isset($info->size) ? $info->size : null;
+            $model->msgno = isset($info->msgno) ? $info->msgno : null;
+            $model->recent = isset($info->recent) ? $info->recent : null;
+            $model->flagged = isset($info->flagged) ? $info->flagged : null;
+            $model->answered = isset($info->answered) ? $info->answered : null;
+            $model->deleted = isset($info->deleted) ? $info->deleted : null;
+            $model->seen = isset($info->seen) ? $info->seen : null;
+            $model->draft = isset($info->draft) ? $info->draft : null;
+
+            $model->save();
+        }
+
     }
 
-    public function saveMail(){
+    public function saveEmailMailboxAddress($email_mailbox_id, $add, $name, $type){
+        $mdlAdd = EmailAddress::findone(['address'=>$add]);
+        if(!$mdlAdd){
+            $mdlAdd = new EmailAddress();
+            $mdlAdd->address = $add;
+        }
+        $mdlAdd->name = $name;
+        $mdlAdd->save();
 
+        $ema = EmailMailboxAddress::find()
+            ->where([
+                'email_mailbox_id'=>$email_mailbox_id,
+                'email_address_id'=>$mdlAdd->id,
+                'type'=>$type
+            ])
+            ->one();
+
+        if(!$ema){
+            $ema = new EmailMailboxAddress();
+            $ema->email_mailbox_id =$email_mailbox_id;
+            $ema->email_address_id =$mdlAdd->id;
+            $ema->type =$type;
+            $ema->save();
+        }
     }
 
     public function reloadFolder(){
