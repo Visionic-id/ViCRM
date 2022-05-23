@@ -54,23 +54,28 @@ class Email extends BaseObject
 
         foreach($mailIds as $mailId)
         {
+            // Array with IncomingMail objects
+            $model = EmailMailbox::find()->where([
+                'user_id'=>Yii::$app->user->id,
+                'uid'=>$mailId
+            ])->one();
+
+            if($model){
+                continue;
+            }
+
             // Returns Mail contents
             $mail = $this->mailbox->getMail($mailId);
 
             // Read mail parts (plain body, html body and attachments
             $mailObject = $this->mailbox->getMailParts($mail);
 
-            // Array with IncomingMail objects
-            $model = EmailMailbox::find()->where([
-                'user_id'=>Yii::$app->user->id,
-                'uid'=>$mailObject->id
-            ])->one();
 
-            if(!$model){
+//            if(!$model){
                 $model = new EmailMailbox();
                 $model->user_id = Yii::$app->user->id;
                 $model->uid = $mailObject->id;
-            }
+//            }
 
             $model->date = $mailObject->date;
             $model->subject = $mailObject->subject;
