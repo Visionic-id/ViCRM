@@ -62,6 +62,7 @@ class DefaultController extends Controller
         $model = $this->findModel($id);
 
         $searchModelLog = new UrlShortenerLogSearch();
+        $searchModelLog->url_shortener_id = $model->id;
         $dataProviderLog = $searchModelLog->search($this->request->queryParams);
         return $this->render('view', [
             'model' => $model,
