@@ -35,6 +35,10 @@ use Yii;
  * @property string|null $updated_at
  *
  * @property EmailMailboxAddress[] $emailMailboxAddresses
+ * @property EmailMailboxAddress[] $emailMailboxAddressesCC
+ * @property EmailMailboxAddress[] $emailMailboxAddressesTo
+ * @property EmailMailboxAddress[] $emailMailboxAddressesReplyTo
+ * @property EmailMailboxAttachment[] $emailMailboxAttachments
  * @property User $user
  */
 class EmailMailbox extends \yii\db\ActiveRecord
@@ -93,6 +97,32 @@ class EmailMailbox extends \yii\db\ActiveRecord
     public function getEmailMailboxAddresses()
     {
         return $this->hasMany(EmailMailboxAddress::className(), ['email_mailbox_id' => 'id']);
+    }
+
+    public function getEmailMailboxAddressesCC()
+    {
+        return $this->getEmailMailboxAddresses()->where(['type'=>EmailMailboxAddress::TYPE_CC]);
+    }
+
+    public function getEmailMailboxAddressesTo()
+    {
+        return $this->getEmailMailboxAddresses()->where(['type'=>EmailMailboxAddress::TYPE_TO]);
+    }
+
+
+    public function getEmailMailboxAddressesReplyTo()
+    {
+        return $this->getEmailMailboxAddresses()->where(['type'=>EmailMailboxAddress::TYPE_REPLY_TO]);
+    }
+
+    /**
+     * Gets query for [[EmailMailboxAddresses]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getEmailMailboxAttachments()
+    {
+        return $this->hasMany(EmailMailboxAttachment::className(), ['email_mailbox_id' => 'id']);
     }
 
     /**

@@ -79,6 +79,12 @@ $folders = EmailUserFolder::find()->where(['user_id' => Yii::$app->user->id])->a
                     <a href="<?= Url::to(['view', 'id'=>$model->id]) ?>" class="font-weight-bold text-primary">
                         <?= $model->subject ?>
                     </a>
+                    <?php
+                    $attCount = $model->getEmailMailboxAttachments()->count();
+                    if($attCount > 0){
+                        echo '<div>Memiliki <b>'.$attCount.'</b> Attachment</div>';
+                    }
+                    ?>
                 </td>
                 <td class="align-middle">
                     <a href="<?= Url::to(['compose', 'toAddress'=>$model->fromAddress, 'toName'=>$model->fromName]) ?>">
