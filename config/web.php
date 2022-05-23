@@ -48,6 +48,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'email/compose'=>'email/default/compose',
             ],
         ],
     ],

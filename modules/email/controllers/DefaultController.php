@@ -88,13 +88,6 @@ class DefaultController extends Controller
 
     }
 
-    public function actionReply($id){
-        $model = $this->findModel($id);
-    }
-    public function actionForward($id){
-        $model = $this->findModel($id);
-    }
-
     private function findModel($id){
         $model = EmailMailbox::find()->where([
             'id'=>$id,

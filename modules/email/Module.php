@@ -19,6 +19,10 @@ class Module extends \yii\base\Module
     {
         parent::init();
 
+        $this->setComponents([
+            ''
+        ]);
+
         // custom initialization code goes here
     }
 }
